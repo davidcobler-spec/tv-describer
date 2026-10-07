@@ -45,15 +45,9 @@ No framework and no build step. There is one runtime dependency
 
 ## Deploying
 
-The project is already set up on Vercel. To redeploy from your own machine:
-
-```bash
-npm i -g vercel
-vercel link          # pick the tv-describer project
-vercel --prod
-```
-
-If you connect a GitHub repo to the Vercel project, every push to `main` deploys automatically.
+The Vercel project `tv-describer` is connected to this GitHub repo: **every push to `main`
+deploys to production automatically** (other branches get preview deployments).
+To deploy by hand instead: `npm i -g vercel && vercel link && vercel --prod`.
 
 Deployment protection: Vercel's login wall ("Vercel Authentication") is limited to
 preview deployments, so the production URL opens on any phone. Anyone can load
