@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>TV Describer</title>
+  <meta name="description" content="Live audio description of whatever is on the TV.">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="TV Describer">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main>
+    <h1>TV Describer</h1>
+
+    <div id="alert" role="alert" class="alert" hidden></div>
+    <p id="status" role="status" class="status">Ready. Press Start.</p>
+
+    <div class="primary">
+      <button id="startBtn" class="big start" type="button" aria-pressed="false">Start</button>
+      <button id="describeNowBtn" class="big" type="button">Describe now</button>
+    </div>
+
+    <section aria-labelledby="statsHeading" class="stats">
+      <h2 id="statsHeading" class="visually-hidden">Session</h2>
+      <p><span id="statCalls">0</span> API calls · est. <span id="statCost">$0.000</span></p>
+      <p class="small"><span id="statUnchanged">0</span> unchanged frames skipped · <span id="statModelSkip">0</span> "nothing new" · <span id="statStale">0</span> dropped as stale</p>
+      <p class="small" id="statDebug" aria-hidden="true"></p>
+    </section>
+
+    <section aria-labelledby="transcriptHeading">
+      <h2 id="transcriptHeading">Descriptions</h2>
+      <ol id="transcript" class="transcript" reversed></ol>
+    </section>
+
+    <section aria-labelledby="settingsHeading">
+      <h2 id="settingsHeading">Settings</h2>
+
+      <label class="field">
+        <span>Describe every <output id="intervalOut" for="interval">4</output> seconds</span>
+        <input id="interval" type="range" min="2" max="10" step="1" value="4">
+      </label>
+
+      <label class="field">
+        <span>Detail</span>
+        <select id="verbosity">
+          <option value="brief">Brief (10 words max, major changes only)</option>
+          <option value="detailed">Detailed (15 words max)</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Voice speed <output id="rateOut" for="rate">1.0</output></span>
+        <input id="rate" type="range" min="0.6" max="1.6" step="0.1" value="1">
+      </label>
+
+      <label class="field">
+        <span>Voice</span>
+        <select id="voice"><option value="">Default voice</option></select>
+      </label>
+      <button id="testVoiceBtn" class="secondary" type="button">Test voice</button>
+
+      <label class="field">
+        <span>Where the descriptions play</span>
+        <select id="output">
+          <option value="speaker">This phone's speaker</option>
+          <option value="bluetooth">Bluetooth earbuds or speaker</option>
+        </select>
+      </label>
+
+      <label class="check">
+        <input id="dialogueAware" type="checkbox">
+        <span>Wait for pauses in the show's dialogue (uses the microphone)</span>
+      </label>
+      <p id="dialogueNote" class="small note"></p>
+
+      <label class="field">
+        <span>Skip unchanged frames</span>
+        <select id="sensitivity">
+          <option value="low">Fewer calls (ignore small changes)</option>
+          <option value="normal">Normal</option>
+          <option value="high">More calls (react to small changes)</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Show title (optional)</span>
+        <input id="title" type="text" autocomplete="off" placeholder="e.g. Bluey">
+      </label>
+
+      <label class="field">
+        <span>Characters (optional, one per line: name, how to recognize them)</span>
+        <textarea id="characters" rows="3" placeholder="Bluey - blue heeler puppy&#10;Bingo - smaller red-orange puppy"></textarea>
+      </label>
+    </section>
+
+    <section aria-labelledby="cameraHeading">
+      <h2 id="cameraHeading">Camera and TV crop</h2>
+      <p class="small">Setup step for a sighted helper: aim the phone at the TV, tap "Set TV corners", then tap the four corners of the TV picture.</p>
+      <div id="videoWrap" class="video-wrap">
+        <video id="video" playsinline muted autoplay aria-label="Camera preview"></video>
+        <canvas id="overlay" aria-hidden="true"></canvas>
+      </div>
+      <div class="row">
+        <button id="cameraBtn" class="secondary" type="button">Turn on camera</button>
+        <button id="cornersBtn" class="secondary" type="button">Set TV corners</button>
+        <button id="clearCornersBtn" class="secondary" type="button">Clear corners</button>
+      </div>
+      <p class="small">What gets sent (cropped and straightened):</p>
+      <canvas id="cropPreview" class="crop-preview" width="640" height="360" aria-label="Cropped TV picture preview" role="img"></canvas>
+    </section>
+
+    <section aria-labelledby="accessHeading">
+      <h2 id="accessHeading">Access</h2>
+      <label class="field">
+        <span>Passcode</span>
+        <input id="passcode" type="password" autocomplete="current-password">
+      </label>
+      <button id="checkBtn" class="secondary" type="button">Check connection</button>
+      <button id="dimBtn" class="secondary" type="button">Dim screen</button>
+    </section>
+  </main>
+
+  <div id="dimmer" class="dimmer" hidden>
+    <button id="undimBtn" type="button" class="undim">Screen dimmed. Tap to show controls.</button>
+  </div>
+
+  <canvas id="frameCanvas" hidden></canvas>
+  <script src="/app.js" defer></script>
+</body>
+</html>
