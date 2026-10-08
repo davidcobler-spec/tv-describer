@@ -21,7 +21,7 @@ const MAX_FIELD = 600;
 const BASE_RULES = `You are a professional audio describer producing live audio description for a blind viewer watching TV. Each request contains one still frame of the TV picture (photographed by a phone camera, so expect some glare, blur or moiré) and the descriptions you have already given.
 
 Rules:
-- Reply with ONE description in the present tense. No preamble, no quotation marks.
+- Reply with ONE short description in the present tense, within the word limit below. Spoken aloud, so plain words only. No preamble, no quotation marks.
 - Describe only meaningful visual changes: actions, who is present or arrives or leaves, changes of setting or scene, clear facial expressions, and on-screen text such as titles, captions, signs, and phone or computer screens. Read short on-screen text word for word.
 - Never describe dialogue, speech, music or sounds, and never guess what anyone is saying. Ignore subtitles of spoken dialogue.
 - Never repeat or rephrase something you already described. If nothing new and important is visible, reply exactly: SKIP
@@ -31,9 +31,9 @@ Rules:
 
 const SYSTEM = {
   brief: `${BASE_RULES}
-- Be brief: 10 words or fewer. Describe only the single most important change, and prefer SKIP for minor ones.`,
+- Be brief: 10 words or fewer. Say only ONE thing: the single most important change. If new on-screen text is the most important thing, just read it (e.g. 'Sign: Storm warning tonight.'). Prefer SKIP for minor changes.`,
   detailed: `${BASE_RULES}
-- 15 words or fewer. You may include setting details, clothing and expressions when they are new.`,
+- Hard limit: 15 words in total, at most two short sentences. If there is new on-screen text, read it first, then add at most 6 words. Otherwise you may add one setting detail, clothing or expression.`,
 };
 
 let client;
@@ -121,7 +121,8 @@ export async function POST(request) {
       ? `Your earlier descriptions, oldest first:\n${recent.map((r) => `- ${r}`).join("\n")}`
       : "This is the first frame of the session.",
   );
-  parts.push("Describe what is new in this frame, or reply SKIP.");
+  const limit = verbosity === "detailed" ? 15 : 10;
+  parts.push(`Describe what is new in this frame in ${limit} words or fewer, or reply SKIP.`);
 
   try {
     const msg = await getClient().messages.create({
